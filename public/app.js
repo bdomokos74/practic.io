@@ -1,6 +1,10 @@
 "use strict";
 
-var learnjs = {};
+var learnjs = {
+    poolId: 'eu-central-1:391a0f86-4946-4c93-8122-2a2be139d2e8'
+};
+
+learnjs.identity = new $.Deferred();
 
 learnjs.problems = [
   {
@@ -100,9 +104,18 @@ learnjs.landingView = function() {
     return learnjs.template('landing-view');
 }
 
+learnjs.profileView = function() {
+    var view = learnjs.template('profile-view');
+    learnjs.identity.done( function(identity) {
+        view.find('.email').text(identity.email);
+    });
+    return view;
+}
+
 learnjs.showView = function(hash) {
     var routes = {
         '#problem': learnjs.problemView,
+        '#profile': learnjs.profileView,
         '#':  learnjs.landingView,
         '':  learnjs.landingView
     };
@@ -124,3 +137,49 @@ learnjs.appOnReady = function() {
     }
     learnjs.showView(window.location.hash);
 };
+
+learnjs.awsRefresh = function() {
+  var deferred = new $.Deferred();
+  AWS.config.credentials.refresh(function(err) {
+    if (err) {
+      deferred.reject(err);
+    } else {
+      deferred.resolve(AWS.config.credentials.identityId);
+    }
+  });
+  return deferred.promise();
+}
+
+function googleSignIn(googleUser) {
+    var resp = googleUser.getAuthResponse();
+    console.log("google authresp:");
+    console.log(resp);
+    var id_token = resp.id_token;
+    console.log("id_token="+id_token);
+    AWS.config.update({
+        region: 'eu-central-1',
+        credentials: new AWS.CognitoIdentityCredentials({
+          IdentityPoolId: learnjs.poolId,
+          Logins: {
+            'accounts.google.com': id_token
+          }
+        })
+    });
+    function refresh() {
+      return gapi.auth2.getAuthInstance().signIn({
+          prompt: 'login'
+        }).then(function(userUpdate) {
+        var creds = AWS.config.credentials;
+        var newToken = userUpdate.getAuthResponse().id_token;
+        creds.params.Logins['accounts.google.com'] = newToken;
+        return learnjs.awsRefresh();
+      });
+    }
+    learnjs.awsRefresh().then(function(id) {
+      learnjs.identity.resolve({
+        id: id,
+        email: googleUser.getBasicProfile().getEmail(),
+        refresh: refresh
+      });
+    });
+}

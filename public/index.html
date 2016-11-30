@@ -2,6 +2,8 @@
 <html>
   <head>
     <meta charset='utf-8'>
+    	<meta name=​"google-signin-client_id"​
+    ​ 	  content=​"681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com"​/>
     <title>Learn JS!</title>
     <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css'>
@@ -29,6 +31,10 @@
       top: 0px;
       z-index: 1024;
     }
+    .navbar-padding {
+        padding-top: 7px;
+        display: inline-block;
+    }
     .inline-list {
       margin-bottom: 0px; /* Skeleton reset */
     }
@@ -46,6 +52,9 @@
       font-size: 32px;
     }
     </style>
+    <meta name="google-signin-client_id"
+          content="681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
   </head>
 <body>
     <div class='markup'>
@@ -54,6 +63,11 @@
             <li><a class='text-lg' href="#">LearnJS</a></li>
             <li><a href="#problem-1">Start</a></li>
           </ul>
+          <div class='four columns'>
+              <span class='navbar-padding u-pull-right'>
+                  <span class='g-signin2' data-onsuccess='googleSignIn'></span>
+              </span>
+          </div>
         </div>
         <div class='view-container container'>
         </div>
@@ -80,6 +94,10 @@
                     <p class='result'></p>
                   </div>
                 </form>
+            </div>
+            <div class='profile-view'>
+                <h3>Your profile</h3>
+                <div class='email'></div>
             </div>
             <div class='correct-flash'>
                 <span>Correct!</span> <a>Next problem</a>
