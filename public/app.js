@@ -1,7 +1,7 @@
 "use strict";
 
 var learnjs = {
-    poolId: 'eu-central-1:391a0f86-4946-4c93-8122-2a2be139d2e8'
+    poolId: 'eu-central-1:f628cc78-2e40-4d11-82a2-696f8a5b5e30'
 };
 
 learnjs.identity = new $.Deferred();
@@ -131,11 +131,18 @@ learnjs.showView = function(hash) {
     }
 }
 
+learnjs.addProfileLink = function(profile) {
+    var link = learnjs.template('profile-link');
+    link.find('a').text(profile.email);
+    $('.signin-bar').prepend(link);
+};
+
 learnjs.appOnReady = function() {
     window.onhashchange = function() {
         learnjs.showView(window.location.hash);        
     }
     learnjs.showView(window.location.hash);
+    learnjs.identity.done(learnjs.addProfileLink);
 };
 
 learnjs.awsRefresh = function() {
