@@ -1,7 +1,6 @@
-"use strict";
-
 var learnjs = {
-    poolId: 'eu-central-1:f628cc78-2e40-4d11-82a2-696f8a5b5e30'
+    poolId: 'eu-central-1:f628cc78-2e40-4d11-82a2-696f8a5b5e30',
+    region: 'eu-central-1'
 };
 
 learnjs.identity = new $.Deferred();
@@ -35,6 +34,23 @@ learnjs.applyObject = function(obj, elem) {
     }
 }
 
+learnjs.applyObject1 = function(obj, elem) {
+    for(var key in obj) {
+        console.log("applying key: "+key);
+        if(obj[key] !== null) {
+            console.log('notnullkey='+key);
+            if(key.startsWith('mp_var')){
+                console.log("var found!"+key);
+                elem.find('[data-name="'+key+'"]').attr('data-result', obj[key]);
+            } else {
+                elem.find('[data-name="'+key+'"]').text(obj[key]);
+            }
+        } else {
+            elem.find('[data-name="'+key+'"]').remove();
+            
+        }
+    }
+}
 learnjs.flashElement = function(elem, content) {
   elem.fadeOut('fast', function() {
     elem.html(content);
@@ -121,8 +137,155 @@ learnjs.problemView = function(data) {
   return view;
 }
 
+learnjs.wordView = function() {
+    return learnjs.template('word-view');
+}
+
 learnjs.landingView = function() {
     return learnjs.template('landing-view');
+}
+
+learnjs.getRandomIntInclusive = function(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+learnjs.getRandomBool = function() {
+    return Math.random()>0.5;
+}
+
+learnjs.gen_exercise = function() {
+    var res = [];
+    for(var i = 0; i<10; i++) {
+        var a = learnjs.getRandomIntInclusive(1, 9);
+        var b = learnjs.getRandomIntInclusive(1, 9);
+        var c;
+        var op_str;
+        if( a>b) {
+            op_str = '-';
+            c = a -b;
+        } else {
+            op_str = '+';
+            c = b-a;
+        }
+        var side = learnjs.getRandomBool();
+
+        var obj = {
+            mp_num1: null,
+            mp_var1: null,
+            mp_op1 : null,
+            mp_num2: null,
+            mp_var2: null,
+            mp_num3: null,
+            mp_var3: null,
+            mp_op2 : null,
+            mp_num4: null,
+            mp_var4: null
+        }
+        var n1, n2, n3;
+        if(side) { //left
+            obj['mp_op1'] = op_str;
+            if(op_str==='-') {
+                n1 = a;
+                n2 = b;
+                n3 = c;
+            } else {
+                n1 = c;
+                n2 = a;
+                n3 = b;
+            }
+            var nvar = learnjs.getRandomIntInclusive(1, 3);
+            if(nvar===1) {
+                obj['mp_var1'] = n1;
+                obj['mp_num2'] = n2;
+                obj['mp_num3'] = n3;
+            } else if(nvar===2) {
+                obj['mp_num1'] = n1;
+                obj['mp_var2'] = n2;
+                obj['mp_num3'] = n3;
+            } else if(nvar===3) {
+                obj['mp_num1'] = n1;
+                obj['mp_num2'] = n2;
+                obj['mp_var3'] = n3;
+            }
+        } else {
+            obj['mp_op2'] = op_str;
+            if(op_str==='-') {
+                n1 = c;
+                n2 = a;
+                n3 = b;
+            } else {
+                n1 = b;
+                n2 = a;
+                n3 = c;
+            }
+            var nvar = learnjs.getRandomIntInclusive(1, 3);
+            if(nvar===1) {
+                obj['mp_var2'] = n1;
+                obj['mp_num3'] = n2;
+                obj['mp_num4'] = n3;
+            } else if(nvar===2) {
+                obj['mp_num2'] = n1;
+                obj['mp_var3'] = n2;
+                obj['mp_num4'] = n3;
+            } else if(nvar===3) {
+                obj['mp_num2'] = n1;
+                obj['mp_num3'] = n2;
+                obj['mp_var4'] = n3;
+            }
+        }
+        res.push(obj);
+    }
+    return res;
+}
+
+learnjs.mathView = function() {
+    var view = learnjs.template('math-view');
+    var ex = learnjs.gen_exercise();
+    console.log(ex);
+    for(var idx in ex ) {
+        var obj = ex[idx];
+        var p = learnjs.template('math-problem');
+        learnjs.applyObject1(obj, p);
+        view.find('.math-panel-1').append(p);
+    }
+
+    ex = learnjs.gen_exercise();
+    for(var idx in ex ) {
+        var obj = ex[idx];
+        p = learnjs.template('math-problem');
+        learnjs.applyObject1(obj, p);
+        view.find('.math-panel-2').append(p);
+    }
+    var checkPanel= function(panel) {
+        var panel = $(panel);
+        var good=0, bad=0;
+        panel.children().each(function(ret) {
+            var inp = $(this).children('.num-input').first();
+            console.log(inp.val()===inp.attr('data-result'));
+
+            if(inp.val()===inp.attr('data-result')){
+                $(inp).siblings('i.result-ok').removeClass('hidden');
+                good = good+1;
+            } else {
+                $(inp).siblings('i.result-nok').removeClass('hidden');
+                bad = bad + 1;
+            }
+        });
+        return {bad: bad, good: good};
+    }
+    view.find('.ready-button').on('click', function(e){
+        console.log(e.target);
+        $('.math-panel-1 i').addClass('hidden');
+        $('.math-panel-2 i').addClass('hidden');
+
+        var result1 = checkPanel('.math-panel-1');
+        var result2 = checkPanel('.math-panel-2');
+        $('.result-line').removeClass('hidden');
+        $('.ok-num').text(result1['good']+result2['good']);
+        $('.nok-num').text(result1['bad']+result2['bad']);
+    });
+    return view; 
 }
 
 learnjs.profileView = function() {
@@ -137,6 +300,8 @@ learnjs.showView = function(hash) {
     var routes = {
         '#problem': learnjs.problemView,
         '#profile': learnjs.profileView,
+        '#words': learnjs.wordView,
+        '#math': learnjs.mathView,
         '#':  learnjs.landingView,
         '':  learnjs.landingView
     };
@@ -158,12 +323,31 @@ learnjs.addProfileLink = function(profile) {
     $('.signin-bar').prepend(link);
 };
 
+learnjs.readURL = function(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('.blah:first').attr('src', e.target.result);
+            window.imgresult = e.target.result;
+            
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
 learnjs.appOnReady = function() {
     window.onhashchange = function() {
         learnjs.showView(window.location.hash);        
     }
     learnjs.showView(window.location.hash);
     learnjs.identity.done(learnjs.addProfileLink);
+    
+    $("#imgInp").change(function(){
+        console.log("onchange");
+        learnjs.readURL(this);
+    });
+
 };
 
 learnjs.awsRefresh = function() {
@@ -178,39 +362,6 @@ learnjs.awsRefresh = function() {
   return deferred.promise();
 }
 
-function googleSignIn(googleUser) {
-    var resp = googleUser.getAuthResponse();
-    console.log("google authresp:");
-    console.log(resp);
-    var id_token = resp.id_token;
-    console.log("id_token="+id_token);
-    AWS.config.update({
-        region: 'eu-central-1',
-        credentials: new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: learnjs.poolId,
-          Logins: {
-            'accounts.google.com': id_token
-          }
-        })
-    });
-    function refresh() {
-      return gapi.auth2.getAuthInstance().signIn({
-          prompt: 'login'
-        }).then(function(userUpdate) {
-        var creds = AWS.config.credentials;
-        var newToken = userUpdate.getAuthResponse().id_token;
-        creds.params.Logins['accounts.google.com'] = newToken;
-        return learnjs.awsRefresh();
-      });
-    }
-    learnjs.awsRefresh().then(function(id) {
-      learnjs.identity.resolve({
-        id: id,
-        email: googleUser.getBasicProfile().getEmail(),
-        refresh: refresh
-      });
-    });
-}
 
 learnjs.sendAwsRequest = function(req, retry) {
     var promise = $.Deferred();
@@ -233,6 +384,21 @@ learnjs.sendAwsRequest = function(req, retry) {
     req.send();
     return promise;
 };
+
+learnjs.saveData = function(name, data) {
+    return learnjs.identity.then(function(identity) {
+        var s3 = new AWS.S3({region: learnjs.region});
+        var bucket = "item.data";
+        var params = {
+            Body: data,
+            Bucket: bucket,
+            Key: uuid.v4(),
+            ACL: 'public-read',
+            ContentLength: data.length(),
+            ContentEncoding: 'base64'
+        }
+    })
+}
 
 learnjs.saveAnswer = function(problemId, answer) {
     return learnjs.identity.then(function(identity) {
@@ -266,3 +432,5 @@ learnjs.fetchAnswer = function(problemId) {
         })
     });
 };
+
+module.exports = learnjs;

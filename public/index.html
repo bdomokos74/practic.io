@@ -5,12 +5,16 @@
     	<meta name=​"google-signin-client_id"​
     ​ 	  content=​"681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com"​/>
     <title>Learn JS!</title>
+    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
     <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css'>
-    <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>
-    <script src='/vendor.js'></script>
-    <script src='/app.js'></script>
+
+    <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>    
+
+    <script src='vendor.js'></script>
+
+        
     <style type="text/css" media="all">
     body { margin-top: 60px; }
     .templates { display: none; }
@@ -51,6 +55,26 @@
     .text-lg {
       font-size: 32px;
     }
+    .blah{
+        max-width: 100%;
+    }
+    .main-icon {
+	    width: 400px;
+	    height: 210px;
+    }
+    .num-input {
+	    width: 25px;
+	    display: inline;
+    }
+    .hidden {
+        display: none;
+    }
+    .red {
+        color: red;
+    }
+    .green {
+        color: green;
+    }
     </style>
     <meta name="google-signin-client_id"
           content="681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com">
@@ -62,7 +86,9 @@
           <ul class='inline-list hover-links nav-list six columns'>
             <li><a class='text-lg' href="#">LearnJS</a></li>
             <li><a href="#problem-1">Start</a></li>
+            <li><a href="#words">Cards</a></li>
           </ul>
+
           <div class='four columns signin-bar'>
               <span class='navbar-padding u-pull-right'>
                   <span class='g-signin2' data-onsuccess='googleSignIn'></span>
@@ -74,15 +100,57 @@
         <div class='templates'>
             <div class='landing-view'>
                 <div class='row'>
+                    <h3>Learn js one puzzle at a time</h3>
+                </div>
+                <div class='row'>
                     <div class='one-half column'>
-                        <h3>Learn js one puzzle at a time</h3>
-                        <a href='#problem-1' class='button button-primary'>Start Now!</a>
+                    <a href='#math' class='button-primary'>
+                        <img src="/images/maths_icon.jpg" class='main-icon'>
+                    </a>
                     </div>
                     <div class='one-half column'>
-                        <img src="/images/HeroImage.jpg">
+                        <a href='#problem-1' class='button-primary'>
+                            <img src="/images/letters_icon.jpg" class='main-icon'>
+                        </a>
                     </div>
                 </div>
             </div>
+
+            <div class='math-view'>
+                <h3 class='title'></h3>
+                <p data-name='description'></p>
+                <div class='row'>    
+                    <div class='one-half column math-panel-1'>
+                    </div>
+                    
+                    <div class='one-half column math-panel-2'>
+                    </div>
+                </div> 
+                <div class='hidden result-line'>
+                    <span class='ok-num'></span><i class="fa fa-smile-o green" aria-hidden="true"></i>
+                    <span class='nok-num'></span><i class="fa fa-frown-o red" aria-hidden="true"></i>
+                </div>
+                <button class='button-primary ready-button'>Check Answer</button>
+            </div>
+
+            <div class='math-problem'>
+                <span data-name='mp_num1'></span>
+                <input class='num-input' data-name='mp_var1'/>
+                <span data-name='mp_op1'></span>
+                <span data-name='mp_num2'></span>
+                <input class='num-input' data-name='mp_var2'/n>
+                <span data-name='mp_eq'>=</span>
+                <span data-name='mp_num3'></span>
+                <input class='num-input' data-name='mp_var3'/>
+                <span data-name='mp_op2'></span>
+                <span data-name='mp_num4'></span>
+                <input class='num-input' data-name='mp_var4'/>
+                <i class="fa fa-check-square result-ok hidden green" aria-hidden="true"></i>
+                <i class="fa fa-exclamation-circle result-nok hidden red" aria-hidden="true"></i>
+                <span class='result-ok hidden'></span>
+                <span class='result-nok hidden'></span>
+            </div>
+
             <div class='problem-view'>
                 <h3 class='title'></h3>
                 <p data-name='description'></p>
@@ -99,6 +167,19 @@
                 <h3>Your profile</h3>
                 <div class='email'></div>
             </div>
+            <div class='word-view'>
+                <h3>Create new card</h3>
+                <div class='card'>
+                    <div>
+                        <img class="blah" src="/images/HeroImage.jpg" alt="your image" />
+                    </div>
+                    <form id="form1">
+                        <input type='file' id="imgInp" />
+                    </form>
+                    <div class="resizer"></div>
+                </div>
+                
+            </div>
             <span class='profile-link navbar-padding-lg'>
                 <a href='#profile'></a>
             </span>
@@ -108,8 +189,6 @@
             <li class='skip-btn'><a>Skip This Problem</a></li>
         </div>
     </div>
-    <script type='text/javascript'>
-        $(window).ready(learnjs.appOnReady)
-    </script>
+        <script src='bundle.js'></script>
 ​</body>
 </html>
