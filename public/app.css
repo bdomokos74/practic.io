@@ -1,0 +1,67 @@
+body { margin-top: 60px; }
+.templates { display: none; }
+.fixed-width-text { font-family: "Consolas","Courier New",monospace }
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+}
+.nav-container {
+  padding-left: 40px;
+  background: #666;
+}
+.nav-container a { color: white; }
+.fixed-top {
+  position: fixed;
+  top: 0px;
+  z-index: 1024;
+}
+.navbar-padding {
+    padding-top: 7px;
+    display: inline-block;
+}
+.inline-list {
+  margin-bottom: 0px; /* Skeleton reset */
+}
+.inline-list li {
+  display: inline;
+  margin: 0 20px 0 0;
+}
+.hover-links a { text-decoration: none; }
+.hover-links a:hover { text-decoration: underline; }
+.navbar-padding {
+  padding-top: 7px;
+  display: inline-block;
+}
+.text-lg {
+  font-size: 32px;
+}
+.blah{
+    max-width: 100%;
+}
+.main-icon {
+    width: 400px;
+    height: 210px;
+}
+.num-input {
+    width: 80px;
+    display: inline;
+}
+.hidden {
+    display: none;
+}
+.red {
+    color: red;
+}
+.green {
+    color: green;
+}
+.math-problem {
+    font-size: 30px;
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px)  {
+}

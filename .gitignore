@@ -3,3 +3,11 @@ dist
 working
 master
 conf/
+bower_components/
+node_modules/
+public/maps/
+public/bundle.js
+.babelrc
+.bowerrc
+Session.vim
+

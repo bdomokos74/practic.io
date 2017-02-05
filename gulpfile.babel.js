@@ -1,3 +1,4 @@
+"use strict";
 
 import gulp from 'gulp';
 import babel from 'gulp-babel';
@@ -9,6 +10,9 @@ import source from 'vinyl-source-stream';
 import uglify from 'gulp-uglify';
 import sourceMaps from 'gulp-sourcemaps';
 import gutil from 'gulp-util';
+
+
+var jasmine = require('gulp-jasmine');
 
 gulp.task('default', function() {
     return browserify('./es6/app.js', {debug: true})
@@ -23,6 +27,10 @@ gulp.task('default', function() {
         .pipe(gulp.dest('public'));
 });
 
+gulp.task('test', function() {
+    return gulp.src('./tests/*_spec.js')
+        .pipe(jasmine());
+});
 
 //
 //

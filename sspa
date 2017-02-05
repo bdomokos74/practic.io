@@ -195,6 +195,16 @@ function create_table() {
     --policy-name ${table_name}_table_access
 }
 
+function auth_table() {
+  local table_dir=${1%/}
+  local table_name=$(basename $table_dir)
+  local role_name="${2}_cognito_authenticated"
+  aws --profile $profile iam put-role-policy \
+    --policy-document file://${table_dir}/role_policy.json \
+    --role-name ${role_name} \
+    --policy-name ${table_name}_table_access
+}
+
 function build_bundle() {
   check_node_deps
   pushd services
@@ -352,6 +362,16 @@ case "$action" in
     check_aws
     if [[ $# -eq 3 ]]; then
       create_table ${2} ${3}
+    else
+      echo "Please specify a DynamoDB table configuration directory and identity pool name" 
+      exit 1
+    fi
+    ;;
+
+  auth_table)
+    check_aws
+    if [[ $# -eq 3 ]]; then
+      auth_table ${2} ${3}
     else
       echo "Please specify a DynamoDB table configuration directory and identity pool name" 
       exit 1

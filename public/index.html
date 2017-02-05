@@ -2,8 +2,9 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    	<meta name=​"google-signin-client_id"​
-    ​ 	  content=​"681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com"​/>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com"/>
+
     <title>Learn JS!</title>
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
     <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
@@ -13,72 +14,10 @@
     <script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>    
 
     <script src='vendor.js'></script>
+    <link rel="stylesheet" href="app.css">
 
-        
     <style type="text/css" media="all">
-    body { margin-top: 60px; }
-    .templates { display: none; }
-    .fixed-width-text { font-family: "Consolas","Courier New",monospace }
-    .no-select {
-      user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      -moz-user-select: none;
-    }
-    .nav-container {
-      padding-left: 40px;
-      background: #666;
-    }
-    .nav-container a { color: white; }
-    .fixed-top {
-      position: fixed;
-      top: 0px;
-      z-index: 1024;
-    }
-    .navbar-padding {
-        padding-top: 7px;
-        display: inline-block;
-    }
-    .inline-list {
-      margin-bottom: 0px; /* Skeleton reset */
-    }
-    .inline-list li {
-      display: inline;
-      margin: 0 20px 0 0;
-    }
-    .hover-links a { text-decoration: none; }
-    .hover-links a:hover { text-decoration: underline; }
-    .navbar-padding {
-      padding-top: 7px;
-      display: inline-block;
-    }
-    .text-lg {
-      font-size: 32px;
-    }
-    .blah{
-        max-width: 100%;
-    }
-    .main-icon {
-	    width: 400px;
-	    height: 210px;
-    }
-    .num-input {
-	    width: 25px;
-	    display: inline;
-    }
-    .hidden {
-        display: none;
-    }
-    .red {
-        color: red;
-    }
-    .green {
-        color: green;
-    }
     </style>
-    <meta name="google-signin-client_id"
-          content="681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
   </head>
 <body>
     <div class='markup'>
@@ -135,16 +74,16 @@
 
             <div class='math-problem'>
                 <span data-name='mp_num1'></span>
-                <input class='num-input' data-name='mp_var1'/>
+                <input class='num-input' data-name='mp_var1' type='number'/>
                 <span data-name='mp_op1'></span>
                 <span data-name='mp_num2'></span>
-                <input class='num-input' data-name='mp_var2'/n>
+                <input class='num-input' data-name='mp_var2' type='number'/>
                 <span data-name='mp_eq'>=</span>
                 <span data-name='mp_num3'></span>
-                <input class='num-input' data-name='mp_var3'/>
+                <input class='num-input' data-name='mp_var3' type='number'/>
                 <span data-name='mp_op2'></span>
                 <span data-name='mp_num4'></span>
-                <input class='num-input' data-name='mp_var4'/>
+                <input class='num-input' data-name='mp_var4' type='number'/>
                 <i class="fa fa-check-square result-ok hidden green" aria-hidden="true"></i>
                 <i class="fa fa-exclamation-circle result-nok hidden red" aria-hidden="true"></i>
                 <span class='result-ok hidden'></span>
@@ -190,5 +129,5 @@
         </div>
     </div>
         <script src='bundle.js'></script>
-​</body>
+</body>
 </html>
