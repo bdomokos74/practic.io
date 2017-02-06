@@ -226,12 +226,20 @@ learnjs.showView = function(hash) {
         '#':  learnjs.landingView,
         '':  learnjs.landingView
     };
+    var inits = {
+        '#math': function() {
+            $('input[data-index=0]').focus();
+        }
+    }
     var hashParts = hash.split('-');
     var viewFn = routes[hashParts[0]];
     learnjs.triggerEvent('removingView', []);
     if(viewFn) {
          console.log("applying route: "+hashParts[0]);
         $('.view-container').empty().append(viewFn(hashParts[1]));
+        if(inits[hashParts[0]]){
+            inits[hashParts[0]]();
+        }
     } else {
         console.log("unknown route: "+hashParts[0]);
         console.log("routes: "+Object.keys(routes));

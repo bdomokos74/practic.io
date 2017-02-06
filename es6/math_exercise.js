@@ -5,8 +5,12 @@ var rnd = require('./math_rnd');
 var generator = {
     rnd: rnd,
     generate_exercise : function() {
+        var exerciseNum = 10;
+        if(arguments.length>0) {
+            exerciseNum = Number(arguments[0]);
+        }
         var res = [];
-        for(var i = 0; i<10; i++) {
+        for(var i = 0; i<exerciseNum; i++) {
             var a = this.rnd.getRandomIntInclusive(1, 9);
             var b = this.rnd.getRandomIntInclusive(1, 9);
             var c;
