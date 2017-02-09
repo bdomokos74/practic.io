@@ -52,7 +52,6 @@ learnjs.applyObject1 = function(obj, elem) {
         }
     }
 }
-
 learnjs.flashElement = function(elem, content) {
   elem.fadeOut('fast', function() {
     elem.html(content);
@@ -149,29 +148,29 @@ learnjs.landingView = function() {
 
 learnjs.mathView = function() {
     var view = learnjs.template('math-view');
-    var ex = generator.generate_exercise();
-    for(var idx in ex ) {
-        var obj = ex[idx];
+    var allExercises = [];
+    for(var idx=0; idx<10; idx++ ) {
+        var obj = generator.generate_exercise(10);
         var p = learnjs.template('math-problem');
-        learnjs.applyObject1(obj, p);
+        learnjs.applyObject1(generator.toObject(obj), p);
         view.find('.math-panel-1').append(p);
+        allExercises.push(obj);
     }
 
-    var ex2 = generator.generate_exercise();
-    for(var idx in ex2 ) {
-        var obj = ex2[idx];
-        p = learnjs.template('math-problem');
-        learnjs.applyObject1(obj, p);
+    for(var idx=0; idx<10; idx++ ) {
+        var obj = generator.generate_exercise(10);
+        var p = learnjs.template('math-problem');
+        learnjs.applyObject1(generator.toObject(obj), p);
         view.find('.math-panel-2').append(p);
+        allExercises.push(obj);
     }
     var idx = 0;
     view.find('input').each(function(it, elem){
-        console.log(elem);
-        console.log("index="+idx);
         $(elem).attr('data-index', idx);
         idx = idx + 1;
-    })    
-    learnjs.saveMathExercise(ex.concat(ex2))
+    });
+    console.log(allExercises);
+    learnjs.saveMathExercise(allExercises)
     .then( function() {
         console.log("saveMathExercise done ");
     },function(err){
@@ -183,7 +182,6 @@ learnjs.mathView = function() {
         var good=0, bad=0;
         panel.children().each(function(ret) {
             var inp = $(this).children('.num-input').first();
-            console.log(inp.val()===inp.attr('data-result'));
 
             if(inp.val()===inp.attr('data-result')){
                 $(inp).siblings('i.result-ok').removeClass('hidden');
@@ -235,7 +233,6 @@ learnjs.showView = function(hash) {
     var viewFn = routes[hashParts[0]];
     learnjs.triggerEvent('removingView', []);
     if(viewFn) {
-         console.log("applying route: "+hashParts[0]);
         $('.view-container').empty().append(viewFn(hashParts[1]));
         if(inits[hashParts[0]]){
             inits[hashParts[0]]();
@@ -250,6 +247,7 @@ learnjs.addProfileLink = function(profile) {
     var link = learnjs.template('profile-link');
     link.find('a').text(profile.email);
     $('.signin-bar').prepend(link);
+    $('.signin-button').addClass('hidden');
 };
 
 learnjs.readURL = function(input) {
