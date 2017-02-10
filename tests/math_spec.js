@@ -18,7 +18,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([true, false, true]) // var_on_left, op_on_left,  op_plus, var_left_of_op
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("_=1+3");
     });
 
@@ -27,7 +27,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([false, true, true])
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("1+3=_");
     });
 
@@ -36,7 +36,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([true, true, true, true])
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("_+1=3");
     });
 
@@ -45,7 +45,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([true, true, true, false])
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("1+_=3");
     });
     
@@ -54,7 +54,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([3,1]),
             getRandomBool: rgen_mock([true, true, true, false])
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("1+_=3");
     });
 
@@ -63,7 +63,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([false, true, false]) // var_on_left, op_on_left,  op_plus, var_left_of_op
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("3-1=_");
     });
 
@@ -72,7 +72,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([1,3]),
             getRandomBool: rgen_mock([true, true, false, true]) // var_on_left, op_on_left,  op_plus, var_left_of_op
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("_-1=3");
     });
 
@@ -81,7 +81,7 @@ describe('math_exercise', function() {
             getRandomIntInclusive: rgen_mock([3,1]),
             getRandomBool: rgen_mock([true, true, false, false]) // var_on_left, op_on_left,  op_plus, var_left_of_op
         }
-        var ex = generator.generate_exercise(1);
+        var ex = generator.generate_exercise();
         expect(ex).toEqual("3-_=1");
     });
 

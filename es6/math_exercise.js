@@ -2,11 +2,10 @@
 
 var rnd = require('./math_rnd');
 
-
 var generator = {
     rnd: rnd,
     generate_exercise : function() {
-        var res_max = 0;
+        let res_max = 0;
         if(arguments.length>0) {
             res_max = Number(arguments[0]);
         }
@@ -79,9 +78,12 @@ var generator = {
 
         var chk_res = gen(this.rnd);
         if(res_max>0) {
+            var ii = 0;
             while(this.solve(chk_res)>res_max) {
                 console.log(chk_res+" -> _="+this.solve(chk_res));
                 chk_res = gen(this.rnd);
+                ii = ii+1;
+                if(ii>10) break;
             }
         }
         return chk_res;
@@ -178,6 +180,5 @@ var generator = {
         return obj;
     }
 }
+
 module.exports = generator;
-
-
