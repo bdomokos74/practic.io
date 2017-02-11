@@ -1,11 +1,13 @@
-var rnd = {
-    getRandomIntInclusive : function(min, max) {
+var MathRnd = function() {
+}
+module.exports = MathRnd;
+
+MathRnd.prototype.getRandomIntInclusive = function(min, max) {
       min = Math.ceil(min);
       max = Math.floor(max);
       return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
-    getRandomBool : function() {
+};
+MathRnd.prototype.getRandomBool = function() {
         return Math.random()>0.5;
-    }
 }
-module.exports = rnd;
+

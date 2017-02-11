@@ -1,6 +1,6 @@
 "use sctrict";
 
-var generator = require('../es6/math_exercise.js');
+var MathExercise = require('../es6/math_exercise.js');
 
 var rgen_mock = function(arr) {
     var i = 0;
@@ -12,75 +12,64 @@ var rgen_mock = function(arr) {
     return inner;
 }
 
+var init_mock = function(a, b) {
+    return {
+        getRandomIntInclusive: rgen_mock(a),
+        getRandomBool: rgen_mock(b)
+    }
+}
+
 describe('math_exercise', function() {
+    var generator;
+    beforeEach(function() {
+        generator = new MathExercise(); 
+    });
+
     it('can generate a simple addition, var left', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([true, false, true]) // var_on_left, op_on_left,  op_plus, var_left_of_op
-        }
+        generator.rnd = init_mock([1,3], [true, false, true]);
+        // var_on_left, op_on_left,  op_plus, var_left_of_op
         var ex = generator.generate_exercise();
         expect(ex).toEqual("_=1+3");
     });
 
     it('can generate a simple addition, var right', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([false, true, true])
-        }
+        generator.rnd = init_mock([1,3], [false, true, true]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("1+3=_");
     });
 
     it('can generate a simple addition, var left', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([true, true, true, true])
-        }
+        generator.rnd = init_mock([1,3], [true, true, true, true]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("_+1=3");
     });
 
     it('can generate a simple addition, var left, right of op', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([true, true, true, false])
-        }
+        generator.rnd = init_mock([1,3], [true, true, true, false]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("1+_=3");
     });
     
     it('can generate a simple addition, var left, right of op, swap', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([3,1]),
-            getRandomBool: rgen_mock([true, true, true, false])
-        }
+        generator.rnd = init_mock([3,1],[true, true, true, false]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("1+_=3");
     });
 
     it('can generate a simple subtraction, var right, swap if needed', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([false, true, false]) // var_on_left, op_on_left,  op_plus, var_left_of_op
-        }
+        generator.rnd = init_mock([1,3],[false, true, false]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("3-1=_");
     });
 
     it('can generate a simple subtraction, var right, swap if needed', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([1,3]),
-            getRandomBool: rgen_mock([true, true, false, true]) // var_on_left, op_on_left,  op_plus, var_left_of_op
-        }
+        generator.rnd = init_mock([1,3],[true, true, false, true]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("_-1=3");
     });
 
     it('can generate a simple subtraction, var right, swap if needed', function() {
-        generator.rnd = {
-            getRandomIntInclusive: rgen_mock([3,1]),
-            getRandomBool: rgen_mock([true, true, false, false]) // var_on_left, op_on_left,  op_plus, var_left_of_op
-        }
+        generator.rnd = init_mock([3,1],[true, true, false, false]);
         var ex = generator.generate_exercise();
         expect(ex).toEqual("3-_=1");
     });
@@ -112,4 +101,4 @@ describe('math_exercise', function() {
     it('can get coefficients 4', function() {
         expect(generator.getCoeffs('9')).toEqual([9, 0]);
     });
-})
+});

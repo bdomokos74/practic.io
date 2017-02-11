@@ -5,7 +5,7 @@ var MathView = require('./math_view');
 
 var LearnJS = function(ah) {
     this.auth_handler = ah;
-    this.math_view = new MathView(this);
+    this.math_view = new MathView(this, ah);
     this.problems = [
         {
             description: "What is truth?",
@@ -35,7 +35,9 @@ LearnJS.prototype.appOnReady = function() {
         self.showView(window.location.hash);        
     }
     this.showView(window.location.hash);
-    this.auth_handler.identity.done(this.addProfileLink);
+    this.auth_handler.identity.done(function(identity) {
+        self.addProfileLink(identity);
+    });
     
     $("#imgInp").change(function(){
         console.log("onchange");
@@ -46,8 +48,6 @@ LearnJS.prototype.appOnReady = function() {
             event.preventDefault();
             var inp = event.target;
             var idx = Number($(inp).attr('data-index'));
-            console.log("pressed: "+idx);
-            console.log($('input[data-index='+(idx+1)+']'));
             $('input[data-index='+(idx+1)+']').focus();
         } else {
             return event.charCode >= 48 && event.charCode <= 57;
@@ -188,12 +188,12 @@ LearnJS.prototype.profileView = function() {
 LearnJS.prototype.showView = function(hash) {
     var self = this;
     var routes = {
-        '#problem': this.problemView,
-        '#profile': this.profileView,
-        '#words': this.wordView,
-        '#math': function() { return self.math_view.create() },
-        '#':  this.landingView,
-        '':  this.landingView
+        '#problem': this.problemView.bind(this),
+        '#profile': this.profileView.bind(this),
+        '#words': this.wordView.bind(this),
+        '#math': this.math_view.create.bind(this.math_view),
+        '#':  this.landingView.bind(this),
+        '':  this.landingView.bind(this)
     };
     var inits = {
         '#math': function() {
@@ -248,36 +248,6 @@ LearnJS.prototype.saveData = function(name, data) {
         }
     })
 }
-
-LearnJS.prototype.saveMathExercise = function(exerciseData) {
-    var self = this;
-    var exId = uuid.v4();
-    console.log("saving math exercise, "+exId);
-    return this.auth_handler.identity.then(function(identity) {
-        console.log("gen exid "+identity.id);
-        console.log("saving: "+exId);
-        var data = {
-            exerciseData: exerciseData,
-            created: new Date()
-        }
-        var db = new AWS.DynamoDB.DocumentClient();
-        var item = {
-            TableName: 'math_exercises',
-            Item: {
-                userId: identity.id,
-                exerciseId: 1,
-                data: data,
-                solutionData: []
-            }
-        };
-        return self.auth_handler.sendAwsRequest(db.put(item), function(err) {
-            console.log("cb fn called"+err);
-            return self.saveMathExercise(exerciseData);
-        })
-    }, function(err){
-        console.log("FAIL, "+err);
-    });
-};
 
 LearnJS.prototype.saveAnswer = function(problemId, answer) {
     var self = this;

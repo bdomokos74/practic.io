@@ -1,8 +1,10 @@
-//var learnjs = require('./learnjs');
-var generator = require('./math_exercise');
+var MathExercise = require('./math_exercise');
+var uuid = require('uuid');
 
-var MathView = function(lj) {
+var MathView = function(lj, ah) {
     this.learnjs = lj;
+    this.auth_handler = ah;
+    this.generator = new MathExercise();
 }
 module.exports = MathView;
 
@@ -10,17 +12,17 @@ MathView.prototype.create = function() {
         var view = this.learnjs.template('math-view');
         var allExercises = [];
         for(var idx=0; idx<10; idx++ ) {
-            var obj = generator.generate_exercise(10);
+            var obj = this.generator.generate_exercise(10);
             var p = this.learnjs.template('math-problem');
-            this.learnjs.applyObject1(generator.toObject(obj), p);
+            this.learnjs.applyObject1(this.generator.toObject(obj), p);
             view.find('.math-panel-1').append(p);
             allExercises.push(obj);
         }
 
         for(var idx=0; idx<10; idx++ ) {
-            var obj = generator.generate_exercise(10);
+            var obj = this.generator.generate_exercise(10);
             var p = this.learnjs.template('math-problem');
-            this.learnjs.applyObject1(generator.toObject(obj), p);
+            this.learnjs.applyObject1(this.generator.toObject(obj), p);
             view.find('.math-panel-2').append(p);
             allExercises.push(obj);
         }
@@ -30,7 +32,7 @@ MathView.prototype.create = function() {
             idx = idx + 1;
         });
         console.log(allExercises);
-        this.learnjs.saveMathExercise(allExercises)
+        this.saveMathExercise(allExercises)
             .then( function() {
                 console.log("saveMathExercise done ");
             },function(err){
@@ -67,3 +69,32 @@ MathView.prototype.create = function() {
         return view; 
 }
 
+MathView.prototype.saveMathExercise = function(exerciseData) {
+    var self = this;
+    var exId = uuid.v4();
+    console.log("saving math exercise, "+exId);
+    return this.auth_handler.identity.then(function(identity) {
+        console.log("gen exid "+identity.id);
+        console.log("saving: "+exId);
+        var data = {
+            exerciseData: exerciseData,
+            created: new Date()
+        }
+        var db = new AWS.DynamoDB.DocumentClient();
+        var item = {
+            TableName: 'math_exercises',
+            Item: {
+                userId: identity.id,
+                exerciseId: 1,
+                data: data,
+                solutionData: []
+            }
+        };
+        return self.auth_handler.sendAwsRequest(db.put(item), function(err) {
+            console.log("cb fn called"+err);
+            return self.saveMathExercise(exerciseData);
+        })
+    }, function(err){
+        console.log("FAIL, "+err);
+    });
+};
