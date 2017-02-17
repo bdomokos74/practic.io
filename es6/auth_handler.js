@@ -1,3 +1,5 @@
+
+var AWS = require('aws-sdk');
 function AuthHandler() {
     this.identity= new $.Deferred();
     this.poolId= 'eu-central-1:f628cc78-2e40-4d11-82a2-696f8a5b5e30';
@@ -46,6 +48,7 @@ AuthHandler.prototype.sendAwsRequest = function(req, retry) {
     var promise = $.Deferred();
     req.on('error', function(error) {
         if(error.code === 'CredentialsError') {
+            console.log("Credentials error");
             self.identity.then(function(identity) {
                 return self.identity.refresh().then(function() {
                     return retry();

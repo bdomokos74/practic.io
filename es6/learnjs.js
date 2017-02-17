@@ -1,5 +1,6 @@
 var uuid = require('uuid');
 
+var AWS = require('aws-sdk');
 //var auth_handler = require('./auth_handler');
 var MathView = require('./math_view');
 
