@@ -22,7 +22,7 @@ function byCount(e1, e2) {
 
 function filterItems(items) {
     var values = [];
-    for(i in items) {
+    for(var i in items) {
         values.push([items[i], i]);
     }
     var topFive = {};
@@ -51,4 +51,27 @@ exports.popularAnswers = function(json, context) {
 exports.echo = function(json, context) {  
   context.succeed(["Hello from the cloud! You sent " + JSON.stringify(json)]);
 };
+
+exports.saveExerciseSolution = function(json, context) {
+    var snsdata = JSON.parse(json.Records[0].Sns.Message);
+    console.log(snsdata);
+    var item = { 
+                userId: snsdata['userId'],
+                exerciseId: snsdata['exerciseId'],
+                resultNum: 1,
+                created: new Date().toJSON(),
+                solution: snsdata['solution']
+        };
+    console.log(item);
+    exports.dynamodb.put({
+        TableName: 'exercise_results',
+        Item: item
+    }, function(err, data) {
+        if(err) {
+            context.fail(err, data);
+        } else {
+            context.succeed("done");
+        }
+    });
+}
 

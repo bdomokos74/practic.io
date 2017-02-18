@@ -9,46 +9,43 @@ var MathView = function(lj, ah) {
 }
 module.exports = MathView;
 
-MathView.prototype.create = function() {
-    var self = this;
-    var view = this.learnjs.template('math-view');
+MathView.prototype.generate = function() {
     var allExercises = [];
-    for(var idx=0; idx<10; idx++ ) {
+    for(var idx=0; idx<20; idx++ ) {
         var obj = this.generator.generate_exercise(10);
-        var p = this.learnjs.template('math-problem');
-        this.learnjs.applyObject1(this.generator.toObject(obj), p);
-        view.find('.math-panel-1').append(p);
         allExercises.push(obj);
     }
 
-    for(var idx=0; idx<10; idx++ ) {
-        var obj = this.generator.generate_exercise(10);
-        var p = this.learnjs.template('math-problem');
-        this.learnjs.applyObject1(this.generator.toObject(obj), p);
-        view.find('.math-panel-2').append(p);
-        allExercises.push(obj);
-    }
+    return allExercises;
+}
+
+MathView.prototype.create = function() {
+    var self = this;
+    var view = this.learnjs.template('math-view');
     var idx = 0;
+    var allExercises = this.generate();
+    var len = allExercises.length;
+    for(var i = 0; i<len; i++) {
+        var p = this.learnjs.template('math-problem');
+        var obj = allExercises[i];
+        this.learnjs.applyObject1(this.generator.toObject(obj), p);
+        if(i<len/2) {
+            view.find('.math-panel-1').append(p);
+        } else {
+            view.find('.math-panel-2').append(p);
+        }
+    }
+
     view.find('input').each(function(it, elem){
         $(elem).attr('data-index', idx);
         idx = idx + 1;
     });
     console.log(allExercises);
 
+    var exId = uuid.v4();
     this.getLastExerciseNum().
         then(function(last_ex_id) {
-            console.log("getLastExId returned: ", last_ex_id);
-            var nextid = 0;
-            if(last_ex_id.Count>0) {
-                nextid = last_ex_id.Items[last_ex_id.Count-1].exerciseNum+1;
-            } 
-            console.log("nextid="+nextid);
-            self.saveMathExercise(allExercises, nextid)
-                .then( function() {
-                    console.log("saveMathExercise done ");
-                },function(err){
-                    console.log("saveMathExercise err, ", err);
-                });
+            self.gotLastExNum(last_ex_id, allExercises, exId);
         }, function(err) {
             console.log("getLastEx err", err);
         });
@@ -79,7 +76,10 @@ MathView.prototype.create = function() {
         $('.result-line').removeClass('hidden');
         $('.ok-num').text(result1['good']+result2['good']);
         $('.nok-num').text(result1['bad']+result2['bad']);
-        self.sendSolutionToTopic("hithere").then(function() {
+        self.sendSolutionToTopic({
+            solution: self.getSolution(), 
+            exerciseId: exId
+        }).then(function() {
             console.log("sns done");
         }, function(err) {
             console.log("sns fail", err);
@@ -88,14 +88,41 @@ MathView.prototype.create = function() {
     return view; 
 }
 
+MathView.prototype.getSolution = function() {
+    var values = [];
+    $(".math-view input").each(function() {
+        values.push($(this).val());
+    });
+    return values.join(",");
+}
+
+MathView.prototype.gotLastExNum = function(last_ex_id, allExercises, exId) {
+    var self = this;
+    console.log("getLastExId returned: ", last_ex_id);
+    var nextid = 0;
+    if(last_ex_id.Count>0) {
+        nextid = last_ex_id.Items[last_ex_id.Count-1].exerciseNum+1;
+    } 
+    console.log("nextid="+nextid);
+    self.saveMathExercise(allExercises, nextid, exId)
+        .then( function() {
+            self.exerciseId = exId;
+            console.log("saveMathExercise done ");
+        },function(err){
+            console.log("saveMathExercise err, ", err);
+        });
+}
+
 MathView.prototype.sendSolutionToTopic = function(data) {
     console.log("sending to topic");
     var self = this;
     var sns = new AWS.SNS();
     return this.auth_handler.identity.then(function(identity) {
-        var msg = "hithere";//{created: new Date().toJSON(), solution: data};
+        //var msg = "hithere";//{created: new Date().toJSON(), solution: data};
+        data.userId = identity.id;
+        var jsonData = JSON.stringify(data);
         var params = {
-            Message: JSON.stringify({default: msg}),
+            Message: JSON.stringify({default: jsonData}),
             MessageStructure: 'json',
             TopicArn: 'arn:aws:sns:eu-central-1:577209811533:myTopic'
         };
@@ -131,10 +158,9 @@ MathView.prototype.getLastExerciseNum = function(exData) {
     });
 }
 
-MathView.prototype.saveMathExercise = function(exerciseData, last_ex_id) {
+MathView.prototype.saveMathExercise = function(exerciseData, lastExNum, exId) {
     var self = this;
-    var exId = uuid.v4();
-    console.log("saving math exercise, "+last_ex_id);
+    console.log("saving math exercise, "+lastExNum);
     return this.auth_handler.identity.then(function(identity) {
         console.log("userid "+identity.id);
         var now = new Date();
@@ -143,7 +169,7 @@ MathView.prototype.saveMathExercise = function(exerciseData, last_ex_id) {
             TableName: 'math_exercises',
             Item: {
                 userId: identity.id,
-                exerciseNum: last_ex_id,
+                exerciseNum: lastExNum,
                 exerciseId: exId,
                 created: new Date().toJSON(),
                 data: exerciseData,

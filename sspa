@@ -269,7 +269,7 @@ function create_lambda_service() {
     aws --profile $profile lambda create-function \
       --function-name ${function_name} \
       --role ${role_arn} \
-      --zip-file "fileb://services/archive.zip" \
+      --zip-file "file://services/archive.zip" \
       --handler "index.${function_name}" \
       --cli-input-json "file://${service_dir}/config.json" \
       > ${service_dir}/info.json
