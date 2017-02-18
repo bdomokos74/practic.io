@@ -45,8 +45,8 @@ exports.popularAnswers = function(json, context) {
         } else {
             context.succeed(filterItems(reduceItems({}, data.Items)));
         }
-    })
-}
+    });
+};
 
 exports.echo = function(json, context) {  
   context.succeed(["Hello from the cloud! You sent " + JSON.stringify(json)]);
@@ -54,24 +54,43 @@ exports.echo = function(json, context) {
 
 exports.saveExerciseSolution = function(json, context) {
     var snsdata = JSON.parse(json.Records[0].Sns.Message);
-    console.log(snsdata);
-    var item = { 
-                userId: snsdata['userId'],
-                exerciseId: snsdata['exerciseId'],
-                resultNum: 1,
-                created: new Date().toJSON(),
-                solution: snsdata['solution']
-        };
-    console.log(item);
-    exports.dynamodb.put({
+    var key = {
+        exerciseId: snsdata.exerciseId
+    };
+    var solutionData = exports.dynamodb.get({
         TableName: 'exercise_results',
-        Item: item
-    }, function(err, data) {
-        if(err) {
-            context.fail(err, data);
-        } else {
-            context.succeed("done");
-        }
-    });
-}
+        Key: key
+    }, gotExistingSolution);
 
+    function gotExistingSolution(err, solutionData) {
+        if(err) {
+            console.log("error getting data, exerciseId="+snsdata.exerciseId);
+            console.log(err);
+        } else {
+            var currDate = new Date();
+            var itemDate = new Date(currDate.getTime()+3600000).toJSON();
+            var newItem;
+            if(solutionData.Item) {
+                newItem = solutionData.Item;
+            } else {
+                newItem = { 
+                    userId: snsdata.userId,
+                    exerciseId: snsdata.exerciseId,
+                    solution: []
+                };
+            }
+            newItem.solution.push({data: snsdata.solution, created: itemDate});
+            console.log(newItem);
+            exports.dynamodb.put({
+                TableName: 'exercise_results',
+                Item: newItem
+            }, function(err, data) {
+                if(err) {
+                    context.fail(err, data);
+                } else {
+                    context.succeed("done");
+                }
+            });
+        }
+    }
+};
