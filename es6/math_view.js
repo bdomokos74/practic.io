@@ -177,10 +177,10 @@ MathView.prototype.saveMathExercise = function(exerciseData, lastExNum, exId) {
             }
         };
         return self.auth_handler.sendAwsRequest(db.put(item), function() {
-            console.log("cb fn called"+err);
-            return self.saveMathExercise(exerciseData);
+            console.log("retry cb called, google token expired"+err);
+            return self.saveMathExercise(exerciseData, lastExNum, exId);
         })
     }, function(err){
-        console.log("FAIL, "+err);
+        console.log("FAIL, ", err);
     });
 };

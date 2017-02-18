@@ -23,7 +23,19 @@ AuthHandler.prototype.googleSignIn= function(googleUser) {
         })
     });
 
-    function refresh() {
+    function awsRefresh() {
+        var deferred = new $.Deferred();
+        AWS.config.credentials.refresh(function(err) {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(AWS.config.credentials.identityId);
+            }
+        });
+        return deferred.promise();
+    };
+
+    function refreshGoogleToken() {
         return gapi.auth2.getAuthInstance().signIn({
             prompt: 'login'
         }).then(function(userUpdate) {
@@ -34,11 +46,12 @@ AuthHandler.prototype.googleSignIn= function(googleUser) {
         });
     }
 
-    this.awsRefresh().then(function(id) {
+    awsRefresh().then(function(id) {
+        console.log("awsRefresh resolved");
         self.identity.resolve({
             id: id,
             email: googleUser.getBasicProfile().getEmail(),
-            refresh: refresh
+            refresh: refreshGoogleToken
         });
     });
 };
@@ -50,7 +63,7 @@ AuthHandler.prototype.sendAwsRequest = function(req, retry) {
         if(error.code === 'CredentialsError') {
             console.log("Credentials error");
             self.identity.then(function(identity) {
-                return self.identity.refresh().then(function() {
+                return identity.refreshGoogleToken().then(function() {
                     return retry();
                 }, function() {
                     promise.reject(resp);
@@ -63,19 +76,8 @@ AuthHandler.prototype.sendAwsRequest = function(req, retry) {
     req.on('success', function(resp) {
         promise.resolve(resp.data);
     });
+
     req.send();
     return promise;
-};
-
-AuthHandler.prototype.awsRefresh= function() {
-    var deferred = new $.Deferred();
-    AWS.config.credentials.refresh(function(err) {
-        if (err) {
-            deferred.reject(err);
-        } else {
-            deferred.resolve(AWS.config.credentials.identityId);
-        }
-    });
-    return deferred.promise();
 };
 

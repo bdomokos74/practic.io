@@ -7,25 +7,6 @@ var MathView = require('./math_view');
 var LearnJS = function(ah) {
     this.auth_handler = ah;
     this.math_view = new MathView(this, ah);
-    this.problems = [
-        {
-            description: "What is truth?",
-            code: "function problem() { return __; }",
-            answer: "true"
-        },
-        {
-            description: "Simple Math",
-            code: "function problem() { return 42 === 6 * __; }",
-            answer: "7"
-        },
-        {
-            description: "Q1",
-            code: "function problem() { return _; }",
-            answer: "ans1"
-        }
-
-    ];
-
 };
 module.exports = LearnJS;
 
@@ -58,12 +39,6 @@ LearnJS.prototype.appOnReady = function() {
 
 LearnJS.prototype.template = function(name) {
     return $('.templates .'+name).clone();
-}
-
-LearnJS.prototype.applyObject = function(obj, elem) {
-    for(var key in obj) {
-        elem.find('[data-name="'+key+'"]').text(obj[key]);
-    }
 }
 
 LearnJS.prototype.applyObject1 = function(obj, elem) {
@@ -105,69 +80,6 @@ LearnJS.prototype.triggerEvent = function(name, args) {
     $(".view-container>*").trigger(name, args);
 }
 
-LearnJS.prototype.popularAnswers = function(problemId) {
-    var self = this;
-    return this.auth_handler.identity.then(function() {
-        var lambda = new AWS.Lambda();
-        var params = {
-            FunctionName: "learnjs_popularAnswers",
-            Payload: JSON.stringify({problemNumber: problemId})
-        };
-        return self.auth_handler.sendAwsRequest(lambda.invoke(params), function() {
-            return self.popularAnswers(problemId);
-        });
-    });
-}
-    
-LearnJS.prototype.problemView = function(data) {
-    var self = this;
-    var problemNumber = parseInt(data, 10);
-    var view = this.template('problem-view');
-    var problemData = this.problems[problemNumber - 1];
-    var resultFlash = view.find('.result');
-    var answer = view.find('.answer');
-
-    function checkAnswer() {
-        // var test = problemData.code.replace('__', answer) + '; problem();';
-        // return eval(test);
-        return problemData.answer.trim()===answer.val();
-    }
-
-    function checkAnswerClick() {
-        if (checkAnswer()) {
-            var flashContent = self.buildCorrectFlash(problemNumber);
-            self.flashElement(resultFlash, flashContent);
-            self.saveAnswer(problemNumber, answer.val());
-        } else {
-            self.flashElement(resultFlash, 'Incorrect!');
-        }
-        return false;
-    }
-
-    console.log("problemview");
-    if (problemNumber < this.problems.length) {
-        console.log("notlast");
-        var buttonItem = this.template('skip-btn');
-        buttonItem.find('a').attr('href', '#problem-' + (problemNumber + 1));
-        $('.nav-list').append(buttonItem);
-        view.bind('removingView', function() {
-            console.log('removingView evt, this='+this);
-            buttonItem.remove();
-        });
-    }
-
-    this.fetchAnswer(problemNumber).then(function(data) {
-        if(data.Item) {
-            answer.val(data.Item.answer);
-        }
-    });
-
-    view.find('.check-btn').click(checkAnswerClick);
-    view.find('.title').text('Problem #' + problemNumber);
-    this.applyObject(problemData, view);
-
-    return view;
-}
 
 LearnJS.prototype.wordView = function() {
     return this.template('word-view');
@@ -189,7 +101,6 @@ LearnJS.prototype.profileView = function() {
 LearnJS.prototype.showView = function(hash) {
     var self = this;
     var routes = {
-        '#problem': this.problemView.bind(this),
         '#profile': this.profileView.bind(this),
         '#words': this.wordView.bind(this),
         '#math': this.math_view.create.bind(this.math_view),
@@ -249,39 +160,4 @@ LearnJS.prototype.saveData = function(name, data) {
         }
     })
 }
-
-LearnJS.prototype.saveAnswer = function(problemId, answer) {
-    var self = this;
-    return this.auth_handler.identity.then(function(identity) {
-        var db = new AWS.DynamoDB.DocumentClient();
-        var item = {
-            TableName: 'learnjs',
-            Item: {
-                userId: identity.id,
-                problemId: problemId,
-                answer: answer
-            }
-        };
-        return self.auth_handler.sendAwsRequest(db.put(item), function() {
-            return self.saveAnswer(problemId, answer);
-        })
-    });
-};
-
-LearnJS.prototype.fetchAnswer = function(problemId) {
-    var self = this;
-    return this.auth_handler.identity.then(function(identity) {
-        var db = new AWS.DynamoDB.DocumentClient();
-        var item = {
-            TableName: 'learnjs',
-            Key: {
-                userId: identity.id,
-                problemId: problemId
-            }
-        };
-        return self.auth_handler.sendAwsRequest(db.get(item), function() {
-            return self.fetchAnswer(problemId);
-        })
-    });
-};
 
