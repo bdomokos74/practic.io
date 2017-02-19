@@ -54,13 +54,12 @@ MathView.prototype.create = function() {
         var panel = $(panel);
         var good=0, bad=0;
         panel.children().each(function(ret) {
-            var inp = $(this).children('.num-input').first();
-
+            var inp = $(this).find('input.num-input').first();
             if(inp.val()===inp.attr('data-result')){
-                $(inp).siblings('i.result-ok').removeClass('hidden');
+                $(inp).parent().siblings('i.result-ok').removeClass('hidden');
                 good = good+1;
             } else {
-                $(inp).siblings('i.result-nok').removeClass('hidden');
+                $(inp).parent().siblings('i.result-nok').removeClass('hidden');
                 bad = bad + 1;
             }
         });
@@ -130,6 +129,7 @@ MathView.prototype.sendSolutionToTopic = function(data) {
     
     var retryFn = function() {
         console.log("sns, retry", data);    
+        self.sendSolutionToTopic(data);
     };
 
     return self.auth_handler.sendAwsRequest(cmdFactory, retryFn);
@@ -176,14 +176,14 @@ MathView.prototype.saveMathExercise = function(exerciseData, lastExNum, exId) {
                 exerciseNum: lastExNum,
                 exerciseId: exId,
                 created: new Date().toJSON(),
-                data: exerciseData,
-                solutionData: []
+                data: exerciseData.join(","),
             }
         };
         return db.put(item);
     };
 
     var retryFn = function() {
+        console.log("retrying save math exercise");
         return self.saveMathExercise(exerciseData, lastExNum, exId);
     };
 

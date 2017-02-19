@@ -1,6 +1,13 @@
-body { margin-top: 60px; }
+body { 
+    margin-top: 60px; 
+    font-size: 24px;
+}
+div.signin-bar {
+    height: 100%;
+    vertical-align: middle;
+}
 .templates { display: none; }
-.fixed-width-text { font-family: "Consolas","Courier New",monospace }
+
 .no-select {
   user-select: none;
   -webkit-user-select: none;
@@ -45,8 +52,10 @@ body { margin-top: 60px; }
     height: 210px;
 }
 .num-input {
+    font-size: 20px;
     width: 80px;
     display: inline;
+    vertical-align: middle;
 }
 .hidden {
     display: none;
@@ -57,8 +66,8 @@ body { margin-top: 60px; }
 .green {
     color: green;
 }
-.math-problem {
-    font-size: 30px;
+.math-problem span input {
+    vertical-align: top;
 }
 
 @media only screen 

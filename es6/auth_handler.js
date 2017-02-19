@@ -62,7 +62,7 @@ AuthHandler.prototype.sendAwsRequest = function(reqFactory, retry) {
     
     this.identity.then(function(awsIdentity) {
         var req = reqFactory(awsIdentity);
-      req.on('error', function(error) {
+        req.on('error', function(error) {
             if(error.code === 'CredentialsError') {
                 console.log("Credentials error");
                 self.identity.then(function(identity) {
