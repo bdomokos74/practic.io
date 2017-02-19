@@ -51,33 +51,40 @@ AuthHandler.prototype.googleSignIn= function(googleUser) {
         self.identity.resolve({
             id: id,
             email: googleUser.getBasicProfile().getEmail(),
-            refresh: refreshGoogleToken
+            refreshGoogleToken: refreshGoogleToken
         });
     });
 };
 
-AuthHandler.prototype.sendAwsRequest = function(req, retry) {
+AuthHandler.prototype.sendAwsRequest = function(reqFactory, retry) {
     var self = this;
     var promise = $.Deferred();
-    req.on('error', function(error) {
-        if(error.code === 'CredentialsError') {
-            console.log("Credentials error");
-            self.identity.then(function(identity) {
-                return identity.refreshGoogleToken().then(function() {
-                    return retry();
-                }, function() {
-                    promise.reject(resp);
+    
+    this.identity.then(function(awsIdentity) {
+        var req = reqFactory(awsIdentity);
+      req.on('error', function(error) {
+            if(error.code === 'CredentialsError') {
+                console.log("Credentials error");
+                self.identity.then(function(identity) {
+                    return identity.refreshGoogleToken().then(function() {
+                        console.log("calling retry cb, google token expired"+err);
+                        return retry();
+                    }, function(resp) {
+                        promise.reject(resp);
+                    });
                 });
-            });
-        } else {
-            promise.reject(error);
-        }
-    });
-    req.on('success', function(resp) {
-        promise.resolve(resp.data);
-    });
+            } else {
+                promise.reject(error);
+            }
+        });
+        req.on('success', function(resp) {
+            promise.resolve(resp.data);
+        });
 
-    req.send();
+        req.send();
+    }, function() {
+        promise.reject("Not logged in");
+    });
     return promise;
 };
 

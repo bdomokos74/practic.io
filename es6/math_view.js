@@ -1,7 +1,7 @@
 var MathExercise = require('./math_exercise');
 var uuid = require('uuid');
-
 var AWS = require('aws-sdk');
+
 var MathView = function(lj, ah) {
     this.learnjs = lj;
     this.auth_handler = ah;
@@ -106,7 +106,6 @@ MathView.prototype.gotLastExNum = function(last_ex_id, allExercises, exId) {
     console.log("nextid="+nextid);
     self.saveMathExercise(allExercises, nextid, exId)
         .then( function() {
-            self.exerciseId = exId;
             console.log("saveMathExercise done ");
         },function(err){
             console.log("saveMathExercise err, ", err);
@@ -117,8 +116,8 @@ MathView.prototype.sendSolutionToTopic = function(data) {
     console.log("sending to topic");
     var self = this;
     var sns = new AWS.SNS();
-    return this.auth_handler.identity.then(function(identity) {
-        //var msg = "hithere";//{created: new Date().toJSON(), solution: data};
+
+    var cmdFactory = function(identity) {
         data.userId = identity.id;
         var jsonData = JSON.stringify(data);
         var params = {
@@ -126,17 +125,19 @@ MathView.prototype.sendSolutionToTopic = function(data) {
             MessageStructure: 'json',
             TopicArn: 'arn:aws:sns:eu-central-1:577209811533:myTopic'
         };
-        return self.auth_handler.sendAwsRequest(sns.publish(params), function(data) {
+        return sns.publish(params);
+    };
+    
+    var retryFn = function() {
         console.log("sns, retry", data);    
-        });
-    }, function(err) {
-        console.log("sns auth FAIL");
-    });
+    };
+
+    return self.auth_handler.sendAwsRequest(cmdFactory, retryFn);
 }
 
 MathView.prototype.getLastExerciseNum = function(exData) {
     var self = this;
-    return this.auth_handler.identity.then(function(identity) {
+    var cmdFactory = function(identity) {
         var db = new AWS.DynamoDB.DocumentClient();
         
         var params = {
@@ -149,19 +150,22 @@ MathView.prototype.getLastExerciseNum = function(exData) {
             ScanIndexForward: false,
             TableName : 'math_exercises'
         };
-        console.log("sending req: ", params);
-        return self.auth_handler.sendAwsRequest(db.query(params), function(data) { 
-            console.log("getLastEx retry", data);
-        });
-    }, function(err){
-        console.log("FAIL identity, "+err);
-    });
+        return db.query(params);
+    };
+
+    var retryFn = function() {
+        console.log("getLastExercisenum retry", params);
+        self.getLastExerciseNum(exData) ;
+    };
+
+    return self.auth_handler.sendAwsRequest(cmdFactory, retryFn);
 }
 
 MathView.prototype.saveMathExercise = function(exerciseData, lastExNum, exId) {
     var self = this;
     console.log("saving math exercise, "+lastExNum);
-    return this.auth_handler.identity.then(function(identity) {
+
+    var cmdFactory = function(identity) {
         console.log("userid "+identity.id);
         var now = new Date();
         var db = new AWS.DynamoDB.DocumentClient();
@@ -176,11 +180,13 @@ MathView.prototype.saveMathExercise = function(exerciseData, lastExNum, exId) {
                 solutionData: []
             }
         };
-        return self.auth_handler.sendAwsRequest(db.put(item), function() {
-            console.log("retry cb called, google token expired"+err);
-            return self.saveMathExercise(exerciseData, lastExNum, exId);
-        })
-    }, function(err){
-        console.log("FAIL, ", err);
-    });
+        return db.put(item);
+    };
+
+    var retryFn = function() {
+        return self.saveMathExercise(exerciseData, lastExNum, exId);
+    };
+
+    return this.auth_handler.sendAwsRequest(cmdFactory, retryFn);
 };
+
