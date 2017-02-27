@@ -1,13 +1,27 @@
-
 var AWS = require('aws-sdk');
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
 function AuthHandler() {
     this.identity= new $.Deferred();
     this.poolId= 'eu-central-1:f628cc78-2e40-4d11-82a2-696f8a5b5e30';
     this.region= 'eu-central-1';
 }
+
+util.inherits(AuthHandler, EventEmitter);
 module.exports = AuthHandler;
 
-AuthHandler.prototype.googleSignIn= function(googleUser) {
+AuthHandler.prototype.logout = function() {
+    var self = this;
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log('User signed out.');
+        self.identity = new $.Deferred();
+        self.emit('signout');
+    });
+}
+
+AuthHandler.prototype.googleSignIn = function(googleUser) {
     console.log("google authresp:");
     var self = this;
     var resp = googleUser.getAuthResponse();
@@ -37,7 +51,7 @@ AuthHandler.prototype.googleSignIn= function(googleUser) {
 
     function refreshGoogleToken() {
         return gapi.auth2.getAuthInstance().signIn({
-            prompt: 'login'
+            prompt: 'select_account'
         }).then(function(userUpdate) {
             var creds = AWS.config.credentials;
             var newToken = userUpdate.getAuthResponse().id_token;
@@ -48,17 +62,33 @@ AuthHandler.prototype.googleSignIn= function(googleUser) {
 
     awsRefresh().then(function(id) {
         console.log("awsRefresh resolved");
-        self.identity.resolve({
+        var identityObj = {
             id: id,
             email: googleUser.getBasicProfile().getEmail(),
             refreshGoogleToken: refreshGoogleToken
-        });
+        }
+        self.identity.resolve(identityObj);
+        console.log('emitting signin');
+        self.emit('signin', identityObj)
     });
 };
 
 AuthHandler.prototype.sendAwsRequest = function(reqFactory, retry) {
     var self = this;
     var promise = $.Deferred();
+
+//    if(gapi && gapi.auth2){
+//        var auth2 = gapi.auth2.getAuthInstance();
+//        console.log("google issigneding? "+auth2.isSignedIn.get());
+//        if(!auth2.isSignedIn.get()) {
+//            promise.reject("logged out");
+//            return promise;
+//        }
+//    } else {
+//        console.log("gapi undefined");
+//        promise.reject("logged out");
+//        return promise;
+//    }
     
     this.identity.then(function(awsIdentity) {
         var req = reqFactory(awsIdentity);

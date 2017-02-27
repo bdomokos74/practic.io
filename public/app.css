@@ -7,7 +7,9 @@ div.signin-bar {
     vertical-align: middle;
 }
 .templates { display: none; }
-
+.orange {
+    color: orange;
+}
 .no-select {
   user-select: none;
   -webkit-user-select: none;

@@ -17,10 +17,15 @@ LearnJS.prototype.appOnReady = function() {
         self.showView(window.location.hash);        
     }
     this.showView(window.location.hash);
-    this.auth_handler.identity.done(function(identity) {
-        self.addProfileLink(identity);
+    this.auth_handler.on('signin', function(identity) {
+        console.log('signon emitted');
+        self.showProfileLink(identity);
+        $('.profile-view .email').text(identity.email);
     });
-    
+    this.auth_handler.on('signout', function(identity) {
+        console.log('signoff emitted');
+        self.hideProfileLink(identity);
+    }); 
     $("#imgInp").change(function(){
         console.log("onchange");
         self.readURL(this);
@@ -91,9 +96,10 @@ LearnJS.prototype.landingView = function() {
 
 
 LearnJS.prototype.profileView = function() {
+    var self = this;
     var view = this.template('profile-view');
-    this.auth_handler.identity.done( function(identity) {
-        view.find('.email').text(identity.email);
+    $(view).find('.logout-link').on('click', function() {
+        self.auth_handler.logout();
     });
     return view;
 }
@@ -126,12 +132,22 @@ LearnJS.prototype.showView = function(hash) {
     }
 }
 
-LearnJS.prototype.addProfileLink = function(profile) {
-    var link = this.template('profile-link');
-    link.find('a').text(profile.email);
-    $('.signin-bar').prepend(link);
+LearnJS.prototype.showProfileLink = function(profile) {
+    var profileLink = $('.signin-bar .profile-link');
+    console.log(profileLink);
+    if(!profileLink.length) {
+        profileLink = this.template('profile-link');
+        $('.signin-bar').prepend(profileLink);
+    }
+    $('.signin-bar .profile-link a').text(profile.email);
     $('.signin-button').addClass('hidden');
+    $('.profile-link').removeClass('hidden');
 };
+
+LearnJS.prototype.hideProfileLink = function(profile) {
+     $('.signin-bar .profile-link').addClass('hidden'); 
+     $('.signin-bar .signin-button').removeClass('hidden'); 
+}
 
 LearnJS.prototype.readURL = function(input) {
     if (input.files && input.files[0]) {
