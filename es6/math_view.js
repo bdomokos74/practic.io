@@ -9,26 +9,41 @@ var MathView = function(lj, ah) {
 }
 module.exports = MathView;
 
-MathView.prototype.generate = function() {
+MathView.prototype.generate = function(val) {
+    if(val===undefined) val = 10;
     var allExercises = [];
     for(var idx=0; idx<20; idx++ ) {
-        var obj = this.generator.generate_exercise(10);
+        var obj = this.generator.generate_exercise(val);
         allExercises.push(obj);
     }
 
     return allExercises;
 }
 
-MathView.prototype.create = function() {
+MathView.prototype.applyObject1 = function(obj, elem) {
+    for(var key in obj) {
+        if(obj[key] !== null) {
+            if(key.startsWith('mp_var')){
+                elem.find('[data-name="'+key+'"]').attr('data-result', obj[key]);
+            } else {
+                elem.find('[data-name="'+key+'"]').text(obj[key]);
+            }
+        } else {
+            elem.find('[data-name="'+key+'"]').remove();
+        }
+    }
+}
+
+MathView.prototype.create = function(maxNumbers) {
     var self = this;
     var view = this.learnjs.template('math-view');
     var idx = 0;
-    var allExercises = this.generate();
+    var allExercises = this.generate(maxNumbers);
     var len = allExercises.length;
     for(var i = 0; i<len; i++) {
         var p = this.learnjs.template('math-problem');
         var obj = allExercises[i];
-        this.learnjs.applyObject1(this.generator.toObject(obj), p);
+        this.applyObject1(this.generator.toObject(obj), p);
         if(i<len/2) {
             view.find('.math-panel-1').append(p);
         } else {

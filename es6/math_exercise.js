@@ -11,15 +11,15 @@ var MathExercise = function(rnd) {
 }
 module.exports = MathExercise;
 
-MathExercise.prototype.generate_exercise = function() {
-    let res_max = 0;
+MathExercise.prototype.generate_exercise = function() { 
+    let res_max = 10;
     if(arguments.length>0) {
         res_max = Number(arguments[0]);
     }
     var gen = function(rnd) {
         var res = "";
-        var a = rnd.getRandomIntInclusive(1, 9);
-        var b = rnd.getRandomIntInclusive(1, 9);
+        var a = rnd.getRandomIntInclusive(1, res_max-1);
+        var b = rnd.getRandomIntInclusive(1, res_max-1);
         var var_on_left = rnd.getRandomBool();
         var op_on_left = rnd.getRandomBool();
         var op_plus = rnd.getRandomBool();
@@ -120,8 +120,15 @@ MathExercise.prototype.getCoeffs= function(tokens) {
 
 MathExercise.prototype.solve= function(eq) {
         var sides = eq.split("=");
-        var left_tokens = sides[0].split("");
-        var right_tokens = sides[1].split("");
+
+        var left_tokens = sides[0].split(/[+-]/);
+        if(sides[0].indexOf('+')>=0) left_tokens.splice(1, 0, '+')
+        else left_tokens.splice(1, 0, '-') 
+
+        var right_tokens = sides[1].split(/[+-]/);
+        if(sides[1].indexOf('+')>=0) right_tokens.splice(1, 0, '+')
+        else right_tokens.splice(1, 0, '-') 
+
         var left_coeffs = this.getCoeffs(left_tokens);
         var right_coeffs = this.getCoeffs(right_tokens);
         right_coeffs[0] -= left_coeffs[0];
@@ -132,6 +139,13 @@ MathExercise.prototype.solve= function(eq) {
         }
         return right_coeffs[0];
 };
+
+MathExercise.prototype.split =  function(str) {
+    var arr = str.split(/[+-]/);
+    if(str.indexOf('+')>=0) arr.splice(1,0, '+');
+    else arr.splice(1,0, '-');
+    return arr;
+}
 
 MathExercise.prototype.toObject=  function(str, elem) {
     var obj = {
@@ -147,8 +161,8 @@ MathExercise.prototype.toObject=  function(str, elem) {
         mp_var4: null
     };
     var sides = str.split("=");
-    var left = sides[0].split("");
-    var right = sides[1].split("");
+    var left = this.split(sides[0]);
+    var right = this.split(sides[1]);
     var result = this.solve(str);
 
     if(left.length===3) {

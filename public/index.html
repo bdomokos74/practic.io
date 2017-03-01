@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <meta name="google-signin-client_id" content="681255236084-11g6ejjccfktr8gf7uildjc9n01ht4ev.apps.googleusercontent.com"/>
 
@@ -24,8 +25,8 @@
         <div class='nav-container no-select fixed-top u-full-width'>
             <ul class='inline-list hover-links nav-list six columns'>
                 <li><a class='text-lg' href="#"><i class="fa fa-book orange" aria-hidden="true"></i>practic.io</a></li>
-                <li><a href="#math">Math</a></li>
-                <li><a href="#words">Words</a></li>
+                <li class="hide-when-narrow"><a href="#mathSelect">Math</a></li>
+                <li class="hide-when-narrow"><a href="#words">Words</a></li>
             </ul>
 
           <div class='four columns signin-bar'>
@@ -45,7 +46,7 @@
                 </div>
                 <div class='row'>
                     <div class='one-half column'>
-                    <a href='#math' class='button-primary'>
+                    <a href='#mathSelect' class='button-primary'>
                         <img src="/images/maths_icon.jpg" class='main-icon'>
                     </a>
                     </div>
@@ -111,9 +112,15 @@
                 </div>
                 
             </div>
+            
+            <div class='math-select-view'>
+                <span><a href="#math"><img src='/images/math_addsub10_col.png'></a></span>
+                <span><a href="#math20"><img src='/images/math_addsub20_col.png'></a></span>
+                <span><img src='/images/math_pyramid20locked.png'></span>
+            </div>
 
             <span class='profile-link navbar-padding u-pull-right'>
-                <a href='#profile'></a>
+                <a href='#profile'><img src='/images/user_small.png'/></a>
             </span>
 
             <div class='correct-flash'>

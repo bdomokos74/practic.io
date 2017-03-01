@@ -72,7 +72,25 @@ div.signin-bar {
     vertical-align: top;
 }
 
+.math-select-view img {
+    width: 128px;
+    height: 128px;    
+}
+
 @media only screen 
 and (min-device-width : 768px) 
 and (max-device-width : 1024px)  {
+}
+
+/* iPhone */
+@media only screen 
+and (min-device-width : 375px) 
+and (max-device-width : 667px) { 
+    .hide-when-narrow {
+        display: none !important;
+    }
+}
+.profile-link img {
+    width: 32px;
+    height: 32px;
 }

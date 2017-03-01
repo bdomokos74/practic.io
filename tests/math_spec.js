@@ -101,4 +101,14 @@ describe('math_exercise', function() {
     it('can get coefficients 4', function() {
         expect(generator.getCoeffs('9')).toEqual([9, 0]);
     });
+
+    it('can solve an equation over 20 - 1', function() {
+        expect(generator.solve("19-3=_")).toEqual(16);
+    });
+
+    it('can solve an equation over 20 - 2', function() {
+        expect(generator.solve("_-13=19")).toEqual(32);
+    });
+
+
 });

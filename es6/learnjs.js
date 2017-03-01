@@ -46,21 +46,6 @@ LearnJS.prototype.template = function(name) {
     return $('.templates .'+name).clone();
 }
 
-LearnJS.prototype.applyObject1 = function(obj, elem) {
-    for(var key in obj) {
-        if(obj[key] !== null) {
-            if(key.startsWith('mp_var')){
-                elem.find('[data-name="'+key+'"]').attr('data-result', obj[key]);
-            } else {
-                elem.find('[data-name="'+key+'"]').text(obj[key]);
-            }
-        } else {
-            elem.find('[data-name="'+key+'"]').remove();
-
-        }
-    }
-}
-
 LearnJS.prototype.flashElement = function(elem, content) {
     elem.fadeOut('fast', function() {
         elem.html(content);
@@ -104,12 +89,20 @@ LearnJS.prototype.profileView = function() {
     return view;
 }
 
+LearnJS.prototype.mathSelectView = function() {
+    var self = this;
+    var view = this.template('math-select-view');
+    return view;
+}
+
 LearnJS.prototype.showView = function(hash) {
     var self = this;
     var routes = {
         '#profile': this.profileView.bind(this),
         '#words': this.wordView.bind(this),
         '#math': this.math_view.create.bind(this.math_view),
+        '#math20': this.math_view.create.bind(this.math_view, 20),
+        '#mathSelect': this.mathSelectView.bind(this),
         '#':  this.landingView.bind(this),
         '':  this.landingView.bind(this)
     };
@@ -139,7 +132,7 @@ LearnJS.prototype.showProfileLink = function(profile) {
         profileLink = this.template('profile-link');
         $('.signin-bar').prepend(profileLink);
     }
-    $('.signin-bar .profile-link a').text(profile.email);
+    //$('.signin-bar .profile-link a').text(profile.email);
     $('.signin-button').addClass('hidden');
     $('.profile-link').removeClass('hidden');
 };
