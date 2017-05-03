@@ -12,3 +12,5 @@ public/bundle.js
 Session.vim
 tags
 tmp/
+.idea/
+learnjs.iml

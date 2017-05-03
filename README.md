@@ -1,19 +1,41 @@
 
-## Change Log
+## Practic.io
 
-### Beta 3 Changes
+Practic.io is a webapp for practicing math, languages or
+other topics for elementary school students (but can be extended with
+content for other audience easily).
 
-  * Compensating for AWSCLI timing issues when creating roles
-  
-### Beta 2 Changes
+This is serverless single page app, using Amazon AWS services
+(S3 for storing content, DynamoDB for data, SNS for messaging,
+Lambda for data processing)
 
-  * Now using 'admin' profile instead of default profile
-  * Added create_service action to sspa
-  * deploy_bucket can now take a config path
+It is deployed at http://practic.io
+
+To deploy the backend components, you need to install the aws command line
+client, and set up ~/.aws/credentials.
+
+To build the javascript part use
+``
+gulp
+``
+This will create public/bundle.js using babelify, minimized and with
+the required modules.
+
+To run the Jasmine tests use
+``
+gulp test
+``
+
+To deploy the website to an S3 bucket, use
+``
+sspa deploy_bundle <bucket_name>
+``
+
+The app framework is from
+https://www.safaribooksonline.com/library/view/serverless-single-page/9781680502084/
+
 
 ## MIT License
-
-Note: The license below applies only to the contents of this git repository, not the Pragmatic Bookshelf title "Serverless Single Page Apps", or any other related content.
 
 Copyright (c) 2015 Ben Rady <benrady@gmail.com>
 
